@@ -6,10 +6,6 @@ import os
 
 """Parse the csv output of nvprof"""
 def parse_gpu_trace_csv(filename):
-    start_times = []
-    durations = []
-    executions = []
-
     with open(filename, newline='') as log:
         kernels = dict()
         line = "=" # Logger's lines start with "="
