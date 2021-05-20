@@ -252,8 +252,11 @@ else:
 
 if (len(sys.argv) > 5):
     filename = sys.argv[5]
+    print("slc_analysis: I've read the speedup csv from " + sys.argv[5])
 else:
     filename = ''
+
+print("slc_analysis: I've read the trace csv from " + sys.argv[1])
 
 #print_idle_times(kernels[1])
 print_to_csv(kernels[0],kernels[1],coarsening1,coarsening2,speedup_stats,filename)
