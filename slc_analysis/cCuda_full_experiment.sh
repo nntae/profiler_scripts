@@ -18,6 +18,8 @@ if (( $# < 6 )); then
     exit
 fi
 
+echo "Running full experiment on $DEVICE of $KERNEL1 with coarsening factor $COARS1 and $KERNEL2 with coarsening factor $COARS2. Executing $NUM_EXEC times to get speedup average"
+
 cd /users/scayuela/elastic_cke
 echo "Running make..."
 make cCuda
