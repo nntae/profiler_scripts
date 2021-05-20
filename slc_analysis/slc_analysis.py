@@ -115,7 +115,7 @@ def parse_execution_output(filename):
     for speedup_data in speedups.values():
         stats_dict = dict()
         stats_dict["speedup_mean"] = mean(speedup_data)
-        stats_dict["speedup_stdev"] = stdev(speedup_data)
+        stats_dict["speedup_stdev"] = stdev(speedup_data) if len(speedup_data) > 1 else 0
         speedup_stats.append(stats_dict)
     
     return speedup_stats
