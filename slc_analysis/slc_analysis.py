@@ -161,21 +161,24 @@ def append_all_idle_times(execs1, execs2):
         append_idle_times(exec1, exec2)
 
 def get_stats(execution):
-    idle_times = execution["idle_times"]
-    total_idle_time = sum(idle_times)
+    try:
+        idle_times = execution["idle_times"]
+        total_idle_time = sum(idle_times)
 
-    if (len(idle_times)) > 0:
-        average_idle_time = int(round(mean(idle_times)))
-        stdev_idle_time = int(round(stdev(idle_times,average_idle_time)))
-    else:
-        average_idle_time = 0
-        stdev_idle_time = 0
+        if (len(idle_times)) > 0:
+            average_idle_time = int(round(mean(idle_times)))
+            stdev_idle_time = int(round(stdev(idle_times,average_idle_time)))
+        else:
+            average_idle_time = 0
+            stdev_idle_time = 0
 
-    wall_time = execution["start_times"][-1] + execution["durations"][-1] - execution["start_times"][0]
-    average_execution_time = int(round(mean(execution["durations"]),0))
-    stdev_execution_time = int(round(stdev(execution["durations"],average_execution_time))) if len(execution["durations"]) > 1 else 0
-    percent_of_total = round(total_idle_time / wall_time * 100, 4)
-    return {'wall_time': wall_time, 'average_execution_time': average_execution_time, 'stdev_execution_time': stdev_execution_time, 'total_idle_time': total_idle_time, 'average_idle_time': average_idle_time, 'stdev_idle_time': stdev_idle_time, 'percent_of_total': percent_of_total}
+        wall_time = execution["start_times"][-1] + execution["durations"][-1] - execution["start_times"][0]
+        average_execution_time = int(round(mean(execution["durations"]),0))
+        stdev_execution_time = int(round(stdev(execution["durations"],average_execution_time))) if len(execution["durations"]) > 1 else 0
+        percent_of_total = round(total_idle_time / wall_time * 100, 4)
+        return {'wall_time': wall_time, 'average_execution_time': average_execution_time, 'stdev_execution_time': stdev_execution_time, 'total_idle_time': total_idle_time, 'average_idle_time': average_idle_time, 'stdev_idle_time': stdev_idle_time, 'percent_of_total': percent_of_total}
+    except KeyError as exc:
+        raise RuntimeError('Error getting stats') from exc
 
 def print_idle_times(kernel):
     print("-----------------------------")
@@ -210,16 +213,19 @@ def print_to_csv(kernel1, kernel2, coarsening1, coarsening2, speedup_stats=None,
             writer.writeheader()
 
         for i in range(len(kernel1["executions"])): 
-            stats1 = get_stats(kernel1["executions"][i])
-            stats2 = get_stats(kernel2["executions"][i])
-            stats1 = dict(zip(kernel_fieldnames1,stats1.values()))
-            stats2 = dict(zip(kernel_fieldnames2,stats2.values()))
-            row = {'execution': str(i+1), 'grid_size1': kernel1["executions"][i]["grid_size"], 'grid_size2': kernel2["executions"][i]["grid_size"], 'coarsening1': coarsening1, 'coarsening2': coarsening2, **stats1, **stats2}
+            try:
+                stats1 = get_stats(kernel1["executions"][i])
+                stats2 = get_stats(kernel2["executions"][i])
+                stats1 = dict(zip(kernel_fieldnames1,stats1.values()))
+                stats2 = dict(zip(kernel_fieldnames2,stats2.values()))
+                row = {'execution': str(i+1), 'grid_size1': kernel1["executions"][i]["grid_size"], 'grid_size2': kernel2["executions"][i]["grid_size"], 'coarsening1': coarsening1, 'coarsening2': coarsening2, **stats1, **stats2}
 
-            if (speedup_stats != None):
-                row = {**row, **speedup_stats[i]}
+                if (speedup_stats != None):
+                    row = {**row, **speedup_stats[i]}
 
-            writer.writerow(row)
+                writer.writerow(row)
+            except RuntimeError:
+                print("Error getting statistics. Possibly only one of the kernels was executed. Skipping execution.")
     print("Output successfully to " + filename)
 
 print("Starting slicing analysis script...")
