@@ -7,6 +7,7 @@ KERNEL2=$3
 COARS1=$4
 COARS2=$5
 NUM_EXEC=$6
+CCUDA_DIR=$7
 BASE_FILENAME=${KERNEL1}x${COARS1}-${KERNEL2}x${COARS2}
 EXEC_FILENAME="exec_$BASE_FILENAME"
 TRACE_FILENAME="trace_$BASE_FILENAME"
@@ -19,8 +20,13 @@ if (( $# < 6 )); then
 fi
 
 echo "Running full experiment on $DEVICE of $KERNEL1 with coarsening factor $COARS1 and $KERNEL2 with coarsening factor $COARS2. Executing $NUM_EXEC times to get speedup average"
+echo $7
 
-cd /users/scayuela/elastic_cke
+if [[ -z "$CCUDA_DIR" ]]; then
+    cd /users/scayuela/elastic_cke
+else
+    cd $CCUDA_DIR
+fi
 echo "Running make..."
 make cCuda
 

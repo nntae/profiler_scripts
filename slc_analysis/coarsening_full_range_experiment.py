@@ -11,6 +11,11 @@ coars1 = sys.argv[4].split(',')
 coars2 = sys.argv[5].split(',')
 num_exec = sys.argv[6]
 
+if len(sys.argv) > 7:
+    ccuda_dir = sys.argv[7]
+else:
+    ccuda_dir = ""
+
 for coars_value1 in coars1:
     for coars_value2 in coars2:
-        subprocess.call(['./cCuda_full_experiment.sh', device, kernel1, kernel2, coars_value1, coars_value2, num_exec])
+        subprocess.call(['./cCuda_full_experiment.sh', device, kernel1, kernel2, coars_value1, coars_value2, num_exec, ccuda_dir])

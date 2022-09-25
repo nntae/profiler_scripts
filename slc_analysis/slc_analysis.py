@@ -48,7 +48,7 @@ def parse_kernel_trace(trace):
         elif (grid_size_ratio == 1): # same grid config
             start_times.append(start)
             durations.append(duration)
-        elif (grid_size_ratio > 3 and start_times): # reached the end of the sliced execution (it executes a larger, single slice with a grid size equal to the sum of grid sizes of the slices that have been executed in the coexecution time. it is detected here)
+        elif (grid_size_ratio > 2.8 and start_times): # reached the end of the sliced execution (it executes a larger, single slice with a grid size equal to the sum of grid sizes of the slices that have been executed in the coexecution time. it is detected here)
             executions.append({'durations': durations, 'start_times': start_times, 'grid_size': prev_grid_size})
             start_times = []
             durations = []
@@ -131,10 +131,14 @@ def set_times_longest_kernel(exec_, slicing_end_time):
     prev_end_time = exec_["start_times"][0] + exec_["durations"][0]
     i = 1
 
-    while exec_["start_times"][i] < slicing_end_time:
+    while i < len(exec_["start_times"]) and exec_["start_times"][i] < slicing_end_time:
         idle_times.append(exec_["start_times"][i] - prev_end_time)
         prev_end_time = exec_["start_times"][i] + exec_["durations"][i]
         i += 1
+
+    # Adjust if the index is out of range
+    if i == len(exec_["start_times"]):
+        i = i - 1
     
     exec_["idle_times"] = idle_times
     exec_["start_times"] = exec_["start_times"][0:i]
@@ -161,9 +165,12 @@ def get_stats(execution):
         idle_times = execution["idle_times"]
         total_idle_time = sum(idle_times)
 
-        if (len(idle_times)) > 0:
+        if (len(idle_times)) > 1:
             average_idle_time = int(round(mean(idle_times)))
             stdev_idle_time = int(round(stdev(idle_times,average_idle_time)))
+        elif len(idle_times) == 1:
+            average_idle_time = int(round(idle_times[0]))
+            stdev_idle_time = 0
         else:
             average_idle_time = 0
             stdev_idle_time = 0
